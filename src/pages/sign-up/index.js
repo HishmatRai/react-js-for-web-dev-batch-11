@@ -95,6 +95,10 @@
 // export default SignUp;
 
 import React, { useState } from "react";
+import { Button } from "../../components";
+import { IoEye } from "react-icons/io5";
+import { IoIosEyeOff } from "react-icons/io";
+
 const SignUp = () => {
   const [form, setForm] = useState({
     fullName: "",
@@ -104,6 +108,7 @@ const SignUp = () => {
   });
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const emailValidation =
     /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   const passwordValidation =
@@ -152,26 +157,36 @@ const SignUp = () => {
         type="text"
         placeholder="Full Name"
         value={form.fullName}
-        onChange={(e) => setForm({ ...form ,  fullName: e.target.value })}
+        onChange={(e) => setForm({ ...form, fullName: e.target.value })}
       />
       <input
         type="number"
         placeholder="Phone Number"
         value={form.phoneNumber}
-        onChange={(e) => setForm({...form , phoneNumber: e.target.value })}
+        onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
       />
       <input
         type="email"
         placeholder="Email Address"
         value={form.email}
-        onChange={(e) => setForm({...form , email: e.target.value })}
+        onChange={(e) => setForm({ ...form, email: e.target.value })}
       />
       <input
-        type="password"
+        type={showPassword ? "text" : "password"}
         placeholder="Password"
         value={form.password}
-        onChange={(e) => setForm({...form , password: e.target.value })}
+        onChange={(e) => setForm({ ...form, password: e.target.value })}
       />
+      <button onClick={() => setShowPassword(!showPassword)}>
+        {showPassword ? "Hide" : "Show"}
+      </button>
+      <button onClick={() => setShowPassword(!showPassword)}>
+        {!showPassword ? (
+          <IoEye color="red" size={50} />
+        ) : (
+          <IoIosEyeOff color="red" size={50} />
+        )}
+      </button>
       <p>
         Min 1 uppercase letter.
         <br />
@@ -188,8 +203,14 @@ const SignUp = () => {
       <p style={{ color: messageType === "error" ? "red" : "green" }}>
         {message}
       </p>
-      <button onClick={()=> console.log("form",form.fullName)}>Click</button>
+      <button onClick={() => console.log("form", form.fullName)}>Click</button>
       <button onClick={signUpHandler}>Sign Up</button>
+      <hr />
+      <Button title="Click" bgColor="blue" border={true} />
+      <Button title="Sign Up" onClick={signUpHandler} />
+      <Button title="Sign In" border={true} />
+      <Button title="Log Out" border={true} />
+      <Button title="Update" bgColor="red" onClick={() => alert("Update")} />
     </div>
   );
 };

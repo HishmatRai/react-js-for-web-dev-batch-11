@@ -1,9 +1,9 @@
 import React from "react";
-import { Navbar,Footer } from "../../components";
+import { Navbar, Footer } from "../../components";
 const About = () => {
   return (
     <div>
-      <Navbar />
+      <Navbar  show={true}/>
       <h1>About Page</h1>
       <Footer />
     </div>
