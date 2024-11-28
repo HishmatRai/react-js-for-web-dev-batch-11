@@ -6,7 +6,7 @@ const Navbar = (props) => {
     <div>
       <hr />
       <hr />
-      {!props.show && (
+      {props.show && (
         <img
           src="https://media.licdn.com/dms/image/v2/C4E0BAQHmHI3WxeTzyg/company-logo_200_200/company-logo_200_200/0/1630641231718?e=2147483647&v=beta&t=euRQMqbys4WgMfE7o76lm85kewVne8B3fUBT0xeid3I"
           height={50}

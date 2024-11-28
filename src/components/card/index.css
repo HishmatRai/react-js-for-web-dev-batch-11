@@ -1,0 +1,14 @@
+.card {
+  border: 2px solid red;
+  width: 32%;
+  margin-top: 15px;
+}
+.card > img {
+  width: 50px;
+}
+.card-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
