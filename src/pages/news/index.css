@@ -1,0 +1,30 @@
+.news-card-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.news-card-container > div {
+  width: 32%;
+  border: 2px solid red;
+  border-radius: 5px;
+  padding: 5px;
+  margin-right: 5px;
+  margin-top: 10px;
+}
+.news-card-container > div > img {
+  width: 100%;
+  height: 250px;
+}
+.news-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.news-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

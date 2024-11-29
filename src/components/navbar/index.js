@@ -22,6 +22,9 @@ const Navbar = (props) => {
         <li>
           <Link to="/contact">Contact</Link>
         </li>
+        <li>
+          <Link to="/news">News</Link>
+        </li>
       </ul>
       <hr />
       <hr />
@@ -29,6 +32,7 @@ const Navbar = (props) => {
       <button onClick={() => navigate("/")}>Home</button>
       <button onClick={() => navigate("/about")}>About</button>
       <button onClick={() => navigate("/contact")}>Contact</button>
+      <button onClick={() => navigate("/news")}>News</button>
     </div>
   );
 };
