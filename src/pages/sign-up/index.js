@@ -98,8 +98,10 @@ import React, { useState } from "react";
 import { Button } from "../../components";
 import { IoEye } from "react-icons/io5";
 import { IoIosEyeOff } from "react-icons/io";
-
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import firebase from "./../../config/firebase";
 const SignUp = () => {
+  const auth = getAuth();
   const [form, setForm] = useState({
     fullName: "",
     phoneNumber: "",
@@ -211,6 +213,30 @@ const SignUp = () => {
       <Button title="Sign In" border={true} />
       <Button title="Log Out" border={true} />
       <Button title="Update" bgColor="red" onClick={() => alert("Update")} />
+      <hr />
+      <hr />
+      <hr />
+      <hr />
+      <hr />
+      <button
+        onClick={() => {
+          createUserWithEmailAndPassword(auth, "email@gmail.com", "password")
+            .then((userCredential) => {
+              // Signed up
+              const user = userCredential.user;
+              // ...
+              console.log("user----->", user);
+            })
+            .catch((error) => {
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              // ..
+              console.log("message ------> ", errorMessage);
+            });
+        }}
+      >
+        Sign Up
+      </button>
     </div>
   );
 };
