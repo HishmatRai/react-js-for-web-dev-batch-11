@@ -220,7 +220,7 @@ const SignUp = () => {
       <hr />
       <button
         onClick={() => {
-          createUserWithEmailAndPassword(auth, "email@gmail.com", "password")
+          createUserWithEmailAndPassword(auth, "emffdail@gmail.com", "password")
             .then((userCredential) => {
               // Signed up
               const user = userCredential.user;
