@@ -8,12 +8,14 @@ import {
   News,
   NewsDetails,
   Login,
+  SignInSignUp
 } from "../../pages";
 const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/signin-signup" element={<SignInSignUp />} />
         <Route path="/log-in" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/about" element={<About />} />

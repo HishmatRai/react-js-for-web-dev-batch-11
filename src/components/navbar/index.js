@@ -230,7 +230,7 @@ function ResponsiveAppBar() {
                 </Menu>
               </>
             ) : (
-              <Button variant="contained" onClick={() => navigate("/log-in")}>
+              <Button variant="contained" onClick={() => navigate("/signin-signup")}>
                 Login
               </Button>
             )}
