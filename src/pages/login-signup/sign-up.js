@@ -2,28 +2,64 @@ import React from "react";
 import { FaFacebookF } from "react-icons/fa6";
 import { FaGoogle } from "react-icons/fa";
 import { toast } from "react-toastify";
-
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
+import { getDatabase, ref, set } from "firebase/database";
+import { getFirestore, doc, setDoc } from "firebase/firestore";
+import CircularProgress from "@mui/material/CircularProgress";
 function SignUpForm() {
+  const auth = getAuth();
+  const database = getDatabase();
+  const firestore = getFirestore();
+  
   const [formData, setFormData] = React.useState({
     name: "",
     email: "",
     password: "",
   });
-
-  const handleOnSubmit = (evt) => {
-    console.log(formData);
-    return false;
+  const emailValidation =
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  const handleOnSubmit = async (evt) => {
+    if (formData.name === "") {
+      toast("Full Name required!", { type: "error" });
+    } else if (formData.email === "") {
+      toast("Email required!", { type: "error" });
+    } else if (!formData.email.match(emailValidation)) {
+      toast("Please enter valid email", { type: "error" });
+    } else if (formData.password === "") {
+      toast("Password required!", { type: "error" });
+    } else {
+      createUserWithEmailAndPassword(auth, formData.email, formData.password)
+        .then(async (userCredential) => {
+          const user = userCredential.user;
+          sendEmailVerification(auth.currentUser).then(async () => {
+            set(ref(database, "users/" + user.uid), formData);
+            toast("Success!", { type: "success" });
+            console.log("user", user);
+            await setDoc(doc(firestore, "users", user.uid), formData);
+          });
+        })
+        .catch((error) => {
+          const errorMessage = error.message;
+          toast(errorMessage, { type: "error" });
+          console.log("errorMessage", errorMessage);
+        });
+    }
   };
-  const notify = () => toast("Full Name required!", { type: "success" });
+  // const notify = () => toast("Full Name required!", { type: "success" });
   return (
     <div className="form-container sign-up-container">
-      <button onClick={notify}>Notify!</button>
-      <form
+      {/* <button onClick={notify}>Notify!</button> */}
+      {/* <form
         onSubmit={() => {
           handleOnSubmit();
           return false;
         }}
-      >
+      > */}
+      <div className="form">
         <h1>Create Account</h1>
         <div className="social-container">
           <a href="#" className="social">
@@ -37,29 +73,27 @@ function SignUpForm() {
 
         <input
           type="text"
-          name="name"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           placeholder="Name"
         />
         <input
           type="email"
-          name="email"
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           placeholder="Email"
         />
         <input
           type="password"
-          name="password"
           value={formData.password}
           onChange={(e) =>
             setFormData({ ...formData, password: e.target.value })
           }
           placeholder="Password"
         />
-        <button>Sign Up</button>
-      </form>
+        <button onClick={handleOnSubmit}><CircularProgress color="white" size={20} />Sign Up</button>
+        {/* </form> */}
+      </div>
     </div>
   );
 }
