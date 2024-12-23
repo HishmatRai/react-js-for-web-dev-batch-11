@@ -8,7 +8,8 @@ import {
   News,
   NewsDetails,
   Login,
-  SignInSignUp
+  SignInSignUp,
+  EmailVerification,
 } from "../../pages";
 const Router = () => {
   return (
@@ -16,6 +17,7 @@ const Router = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/signin-signup" element={<SignInSignUp />} />
+        <Route path="/email-verification" element={<EmailVerification />} />
         <Route path="/log-in" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/about" element={<About />} />
