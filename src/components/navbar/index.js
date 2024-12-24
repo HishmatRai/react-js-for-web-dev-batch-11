@@ -66,11 +66,21 @@ function ResponsiveAppBar() {
   const [loading, setLoading] = useState(true);
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [photoURL, setPhotoURL] = useState("dfd");
+  const [name, setName] = useState("");
+  console.log("photoURL", photoURL);
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        setIsLogin(true);
-        setLoading(false);
+        if (user.emailVerified) {
+          setIsLogin(true);
+          setLoading(false);
+          console.log(user);
+          setPhotoURL(user.photoURL);
+          setName(user.displayName);
+        } else {
+          navigate("/email-verification");
+        }
       } else {
         setLoading(false);
       }
@@ -91,13 +101,13 @@ function ResponsiveAppBar() {
     console.log("setting", setting);
     if (setting === "Logout") {
       signOut(auth)
-      .then(() => {
-        // Sign-out successful.
-        console.log("Sign-out successful.");
-      })
-      .catch((error) => {
-        // An error happened.
-      });
+        .then(() => {
+          // Sign-out successful.
+          console.log("Sign-out successful.");
+        })
+        .catch((error) => {
+          // An error happened.
+        });
     }
   };
 
@@ -195,10 +205,7 @@ function ResponsiveAppBar() {
               <>
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar
-                      alt="Remy Sharp"
-                      src="/static/images/avatar/2.jpg"
-                    />
+                    <Avatar alt={name} src={photoURL} />
                   </IconButton>
                 </Tooltip>
                 <Menu
@@ -230,7 +237,10 @@ function ResponsiveAppBar() {
                 </Menu>
               </>
             ) : (
-              <Button variant="contained" onClick={() => navigate("/signin-signup")}>
+              <Button
+                variant="contained"
+                onClick={() => navigate("/signin-signup")}
+              >
                 Login
               </Button>
             )}
