@@ -55,11 +55,14 @@ import AdbIcon from "@mui/icons-material/Adb";
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import CircularProgress from "@mui/material/CircularProgress";
-
+import { toast } from "react-toastify";
+import { getDatabase, ref, onValue } from "firebase/database";
+import { getFirestore, doc, onSnapshot } from "firebase/firestore";
 const pages = ["Products", "Pricing", "Blog"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const settings = ["Profile", "Dashboard", "Logout"];
 function ResponsiveAppBar() {
-  // console.log("navbar")
+  const database = getDatabase();
+  const firestore = getFirestore();
   const navigate = useNavigate();
   const auth = getAuth();
   const [isLogin, setIsLogin] = useState(false);
@@ -73,11 +76,24 @@ function ResponsiveAppBar() {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         if (user.emailVerified) {
+          const starCountRef = ref(database, "users/" + user.uid);
+          onValue(starCountRef, (snapshot) => {
+            const data = snapshot.val();
+            console.log("data", data);
+            if (data.photoURL) {
+              setPhotoURL(data.photoURL);
+            }
+            setName(data.name);
+          });
+          const unsub = onSnapshot(doc(firestore, "users", user.uid), (doc) => {
+            console.log("Current data: ", doc.data());
+            if (doc.data().photoURL) {
+              setPhotoURL(doc.data().photoURL);
+            }
+            setName(doc.data().name);
+          });
           setIsLogin(true);
           setLoading(false);
-          console.log(user);
-          setPhotoURL(user.photoURL);
-          setName(user.displayName);
         } else {
           navigate("/email-verification");
         }
@@ -97,23 +113,24 @@ function ResponsiveAppBar() {
     setAnchorElNav(null);
   };
   const handleCloseUserMenu = (setting) => {
-    setAnchorElUser(null);
-    console.log("setting", setting);
     if (setting === "Logout") {
       signOut(auth)
         .then(() => {
-          // Sign-out successful.
-          console.log("Sign-out successful.");
+          toast("Sign-out successful.", { type: "success" });
+          setIsLogin(false);
         })
         .catch((error) => {
           // An error happened.
         });
+    } else if (setting === "Profile") {
+      navigate("/profile");
     }
+    setAnchorElUser(null);
   };
 
   return (
-    <AppBar position="static">
-      <Container maxWidth="xl">
+    <AppBar position="fixed">
+      <Container maxWidth="xxl">
         <Toolbar disableGutters>
           <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
           <Typography

@@ -36,6 +36,57 @@ const Home = () => {
   return (
     <Layout>
       <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
+      <h1>Home Page</h1>
       <div className="card-container">
         {cardList.map((val, index) => {
           return (

@@ -11,12 +11,13 @@ import { getDatabase, ref, set } from "firebase/database";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate } from "react-router-dom";
-import { signUpWithFacebook, signUpWithGoogle } from "./social-login";
+import SocailLogin from "./social-login";
 function SignUpForm() {
   const auth = getAuth();
   const database = getDatabase();
   const firestore = getFirestore();
   const navigate = useNavigate();
+  const { signUpWithFacebook, signUpWithGoogle } = SocailLogin();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = React.useState({
     name: "",

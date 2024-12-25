@@ -16,10 +16,11 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import { signUpWithFacebook, signUpWithGoogle } from "./social-login";
+import SocailLogin from "./social-login";
 function SignInForm() {
   const auth = getAuth();
   const navigate = useNavigate();
+  const { signUpWithFacebook, signUpWithGoogle } = SocailLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);

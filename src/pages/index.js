@@ -7,6 +7,7 @@ import NewsDetails from "./news-details";
 import Login from "./login";
 import SignInSignUp from "./login-signup";
 import EmailVerification from "./email-verification";
+import Profile from "./profile";
 export {
   Home,
   About,
@@ -17,4 +18,5 @@ export {
   Login,
   SignInSignUp,
   EmailVerification,
+  Profile,
 };
