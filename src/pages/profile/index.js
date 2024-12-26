@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Layout } from "../../components";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -16,6 +16,23 @@ import Checkbox from "@mui/material/Checkbox";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormLabel from "@mui/material/FormLabel";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { doc, onSnapshot, getFirestore, updateDoc } from "firebase/firestore";
+import {
+  getDatabase,
+  onValue,
+  update,
+  ref as databaseRef,
+} from "firebase/database";
+import {
+  getStorage,
+  uploadBytesResumable,
+  getDownloadURL,
+  ref as storageRef,
+} from "firebase/storage";
+import PropTypes from "prop-types";
+import LinearProgress from "@mui/material/LinearProgress";
+import Typography from "@mui/material/Typography";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -28,25 +45,116 @@ const VisuallyHiddenInput = styled("input")({
   whiteSpace: "nowrap",
   width: 1,
 });
+function LinearProgressWithLabel(props) {
+  return (
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Box sx={{ width: "100%", mr: 1 }}>
+        <LinearProgress variant="determinate" {...props} />
+      </Box>
+      <Box sx={{ minWidth: 35 }}>
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+          {`${Math.round(props.value)}%`}
+        </Typography>
+      </Box>
+    </Box>
+  );
+}
 const Profile = () => {
+  const auth = getAuth();
+  const db = getFirestore();
+  const database = getDatabase();
+  const storage = getStorage();
+
   const [age, setAge] = React.useState("");
   const [loading, setLoading] = React.useState(true);
+  const [uid, setUid] = useState(null);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [photoURL, setPhotoURL] = useState(null);
+  const [progress, setProgress] = React.useState(0);
+  const [profileUploadStart, setProfileUploadStart] = useState(false);
+  // React.useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setProgress((prevProgress) => (prevProgress >= 100 ? 10 : prevProgress + 10));
+  //   }, 800);
+  //   return () => {
+  //     clearInterval(timer);
+  //   };
+  // }, []);
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const uid = user.uid;
+        setUid(uid);
+        const unsub = onSnapshot(doc(db, "users", uid), (doc) => {
+          console.log("Current data: ", doc.data());
+          const data = doc.data();
+          setFullName(data.name);
+          setEmail(data.email);
+          setPhotoURL(data.photoURL);
+        });
+        const starCountRef = databaseRef(database, "users/" + uid);
+        onValue(starCountRef, (snapshot) => {
+          const data = snapshot.val();
+          setFullName(data.name);
+          setEmail(data.email);
+          setPhotoURL(data.photoURL);
+          console.log("data", data);
+        });
+      }
+    });
+  }, []);
   function handleClick() {
     setLoading(true);
   }
   const handleChange = (event) => {
     setAge(event.target.value);
   };
+
+  const uploadProfileImage = async (event) => {
+    setProfileUploadStart(true);
+    const profileStorageRef = storageRef(storage, `profile-images/${uid}`);
+    const uploadTask = uploadBytesResumable(
+      profileStorageRef,
+      event.target.files[0]
+    );
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const uploadProgress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log("Upload is " + uploadProgress + "% done");
+        setProgress(uploadProgress);
+      },
+      (error) => {
+        // Handle unsuccessful uploads
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+          console.log("File available at", downloadURL);
+          setPhotoURL(downloadURL);
+          const washingtonRef = doc(db, "users", uid);
+          await updateDoc(washingtonRef, {
+            photoURL: downloadURL,
+          });
+          update(databaseRef(database, "users/" + uid), {
+            photoURL: downloadURL,
+          });
+          setProfileUploadStart(false);
+        });
+      }
+    );
+  };
+
   return (
     <Layout>
       <h1>Profile Page</h1>
       <Avatar
         alt={"name"}
-        src={
-          "https://images.ctfassets.net/h6goo9gw1hh6/2sNZtFAWOdP1lmQ33VwRN3/24e953b920a9cd0ff2e1d587742a2472/1-intro-photo-final.jpg?w=1200&h=992&fl=progressive&q=70&fm=jpg"
-        }
+        src={photoURL}
         style={{ width: "150px", height: "150px" }}
       />
+      <img src={photoURL} style={{ width: "150px", height: "150px" }} />
       <Button
         component="label"
         role={undefined}
@@ -57,22 +165,33 @@ const Profile = () => {
         Upload files
         <VisuallyHiddenInput
           type="file"
-          onChange={(event) => console.log(event.target.files)}
-          multiple
+          // onChange={(event) => console.log(event.target.files)}
+          onChange={(event) => uploadProfileImage(event)}
+          accept="image/png, image/gif, image/jpeg"
         />
       </Button>
+      {profileUploadStart && (
+        <Box sx={{ width: "100%" }}>
+          <LinearProgressWithLabel value={progress} />
+        </Box>
+      )}
       <Box
         component="form"
         sx={{ "& > :not(style)": { m: 1, width: "25ch" } }}
         noValidate
         autoComplete="off"
       >
-        <TextField id="outlined-basic" label="Full Name" variant="outlined" />
+        <TextField
+          id="outlined-basic"
+          label="Full Name"
+          value={fullName}
+          variant="outlined"
+        />
         <TextField
           id="outlined-basic"
           label="Email Address"
           variant="outlined"
-          value="info@gmail.com"
+          value={email}
           disabled
         />
         <TextField
