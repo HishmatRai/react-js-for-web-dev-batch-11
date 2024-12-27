@@ -99,6 +99,7 @@ function ResponsiveAppBar() {
         }
       } else {
         setLoading(false);
+        navigate("/")
       }
     });
   }, []);
@@ -132,12 +133,12 @@ function ResponsiveAppBar() {
     <AppBar position="fixed">
       <Container maxWidth="xxl">
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
           <Typography
+          style={{cursor:"pointer"}}
+          onClick={()=> navigate("/")}
             variant="h6"
             noWrap
             component="a"
-            href="#app-bar-with-responsive-menu"
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },

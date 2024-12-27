@@ -18,6 +18,7 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormLabel from "@mui/material/FormLabel";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { doc, onSnapshot, getFirestore, updateDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
 import {
   getDatabase,
   onValue,
@@ -73,14 +74,10 @@ const Profile = () => {
   const [photoURL, setPhotoURL] = useState(null);
   const [progress, setProgress] = React.useState(0);
   const [profileUploadStart, setProfileUploadStart] = useState(false);
-  // React.useEffect(() => {
-  //   const timer = setInterval(() => {
-  //     setProgress((prevProgress) => (prevProgress >= 100 ? 10 : prevProgress + 10));
-  //   }, 800);
-  //   return () => {
-  //     clearInterval(timer);
-  //   };
-  // }, []);
+  const [signUpProvider, setSignUpProvider] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [courses, setCourses] = useState("");
+  const [gender, setGender] = useState("");
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -92,6 +89,11 @@ const Profile = () => {
           setFullName(data.name);
           setEmail(data.email);
           setPhotoURL(data.photoURL);
+          setSignUpProvider(data.signUpProvider);
+          setPhoneNumber(data.phoneNumber);
+          setAge(data.age);
+          setCourses(data.courses);
+          setGender(data.gender);
         });
         const starCountRef = databaseRef(database, "users/" + uid);
         onValue(starCountRef, (snapshot) => {
@@ -99,6 +101,11 @@ const Profile = () => {
           setFullName(data.name);
           setEmail(data.email);
           setPhotoURL(data.photoURL);
+          setSignUpProvider(data.signUpProvider);
+          setPhoneNumber(data.phoneNumber);
+          setAge(data.age);
+          setCourses(data.courses);
+          setGender(data.gender);
           console.log("data", data);
         });
       }
@@ -107,9 +114,6 @@ const Profile = () => {
   function handleClick() {
     setLoading(true);
   }
-  const handleChange = (event) => {
-    setAge(event.target.value);
-  };
 
   const uploadProfileImage = async (event) => {
     setProfileUploadStart(true);
@@ -146,6 +150,28 @@ const Profile = () => {
     );
   };
 
+  const updateProfile = async () => {
+    if (fullName === "") {
+      toast("Full Name required!", { type: "error" });
+    } else {
+      const washingtonRef = doc(db, "users", uid);
+      await updateDoc(washingtonRef, {
+        name: fullName,
+        phoneNumber: phoneNumber,
+        age: age,
+        courses: courses,
+        gender: gender,
+      });
+      update(databaseRef(database, "users/" + uid), {
+        name: fullName,
+        phoneNumber: phoneNumber,
+        age: age,
+        courses: courses,
+        gender: gender,
+      });
+    }
+  };
+  console.log("courses",courses)
   return (
     <Layout>
       <h1>Profile Page</h1>
@@ -154,22 +180,23 @@ const Profile = () => {
         src={photoURL}
         style={{ width: "150px", height: "150px" }}
       />
-      <img src={photoURL} style={{ width: "150px", height: "150px" }} />
-      <Button
-        component="label"
-        role={undefined}
-        variant="contained"
-        tabIndex={-1}
-        startIcon={<CloudUploadIcon />}
-      >
-        Upload files
-        <VisuallyHiddenInput
-          type="file"
-          // onChange={(event) => console.log(event.target.files)}
-          onChange={(event) => uploadProfileImage(event)}
-          accept="image/png, image/gif, image/jpeg"
-        />
-      </Button>
+      {signUpProvider === "email" && (
+        <Button
+          component="label"
+          role={undefined}
+          variant="contained"
+          tabIndex={-1}
+          startIcon={<CloudUploadIcon />}
+        >
+          Upload files
+          <VisuallyHiddenInput
+            type="file"
+            // onChange={(event) => console.log(event.target.files)}
+            onChange={(event) => uploadProfileImage(event)}
+            accept="image/png, image/gif, image/jpeg"
+          />
+        </Button>
+      )}
       {profileUploadStart && (
         <Box sx={{ width: "100%" }}>
           <LinearProgressWithLabel value={progress} />
@@ -186,6 +213,7 @@ const Profile = () => {
           label="Full Name"
           value={fullName}
           variant="outlined"
+          onChange={(e) => setFullName(e.target.value)}
         />
         <TextField
           id="outlined-basic"
@@ -197,7 +225,9 @@ const Profile = () => {
         <TextField
           id="outlined-basic"
           label="Phone Number"
+          value={phoneNumber}
           variant="outlined"
+          onChange={(e) => setPhoneNumber(e.target.value)}
         />
         <FormControl fullWidth>
           <InputLabel id="demo-simple-select-label">Age</InputLabel>
@@ -206,17 +236,22 @@ const Profile = () => {
             id="demo-simple-select"
             value={age}
             label="Age"
-            onChange={handleChange}
+            onChange={(e) => setAge(e.target.value)}
           >
-            <MenuItem value={10}>Ten</MenuItem>
-            <MenuItem value={20}>Twenty</MenuItem>
-            <MenuItem value={30}>Thirty</MenuItem>
+            <MenuItem value={"1-20"}>1-20</MenuItem>
+            <MenuItem value={"21-50"}>21-50</MenuItem>
+            <MenuItem value={"51-100"}>51-100</MenuItem>
           </Select>
         </FormControl>
-        <FormGroup>
+        <FormGroup onChange={(e) => setCourses(e.target.value)} value={courses}>
           <FormControlLabel
-            control={<Checkbox defaultChecked />}
-            label="Label"
+            control={
+              <Checkbox
+                defaultChecked={courses !== "" ? true : false}
+              />
+            }
+            label="Web Development"
+            value="Web Development"
           />
         </FormGroup>
         <FormControl>
@@ -225,6 +260,8 @@ const Profile = () => {
             aria-labelledby="demo-radio-buttons-group-label"
             defaultValue="female"
             name="radio-buttons-group"
+            onChange={(e) => setGender(e.target.value)}
+            value={gender}
           >
             <FormControlLabel
               value="female"
@@ -235,7 +272,9 @@ const Profile = () => {
             <FormControlLabel value="other" control={<Radio />} label="Other" />
           </RadioGroup>
         </FormControl>
-        <Button variant="contained">Update Profile</Button>
+        <Button variant="contained" onClick={updateProfile}>
+          Update Profile
+        </Button>
       </Box>
     </Layout>
   );

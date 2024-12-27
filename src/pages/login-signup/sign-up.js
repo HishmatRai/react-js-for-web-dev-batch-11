@@ -44,10 +44,12 @@ function SignUpForm() {
             set(ref(database, "users/" + user.uid), {
               name: formData.name,
               email: formData.email,
+              signUpProvider: "email",
             });
             await setDoc(doc(firestore, "users", user.uid), {
               name: formData.name,
               email: formData.email,
+              signUpProvider: "email",
             });
             toast("Success!", { type: "success" });
             console.log("user", user);
