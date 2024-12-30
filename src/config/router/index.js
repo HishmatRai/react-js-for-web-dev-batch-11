@@ -10,7 +10,8 @@ import {
   Login,
   SignInSignUp,
   EmailVerification,
-  Profile
+  Profile,
+  CreateNewBlog,
 } from "../../pages";
 const Router = () => {
   return (
@@ -18,6 +19,7 @@ const Router = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/signin-signup" element={<SignInSignUp />} />
+        <Route path="/create-new-blog" element={<CreateNewBlog />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/email-verification" element={<EmailVerification />} />
         <Route path="/log-in" element={<Login />} />

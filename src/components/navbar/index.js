@@ -58,8 +58,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { toast } from "react-toastify";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { getFirestore, doc, onSnapshot } from "firebase/firestore";
-const pages = ["Products", "Pricing", "Blog"];
-const settings = ["Profile", "Dashboard", "Logout"];
+const pages = ["Dashboard", "Create New Blog"];
+const settings = ["Profile", "Dashboard", "Create New Blog", "Logout"];
 function ResponsiveAppBar() {
   const database = getDatabase();
   const firestore = getFirestore();
@@ -99,7 +99,7 @@ function ResponsiveAppBar() {
         }
       } else {
         setLoading(false);
-        navigate("/")
+        navigate("/");
       }
     });
   }, []);
@@ -110,8 +110,11 @@ function ResponsiveAppBar() {
     setAnchorElUser(event.currentTarget);
   };
 
-  const handleCloseNavMenu = () => {
+  const handleCloseNavMenu = (page) => {
     setAnchorElNav(null);
+    if (page === "Create New Blog") {
+      navigate("/create-new-blog");
+    }
   };
   const handleCloseUserMenu = (setting) => {
     if (setting === "Logout") {
@@ -134,8 +137,8 @@ function ResponsiveAppBar() {
       <Container maxWidth="xxl">
         <Toolbar disableGutters>
           <Typography
-          style={{cursor:"pointer"}}
-          onClick={()=> navigate("/")}
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/")}
             variant="h6"
             noWrap
             component="a"
@@ -180,7 +183,7 @@ function ResponsiveAppBar() {
               sx={{ display: { xs: "block", md: "none" } }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                <MenuItem key={page} onClick={() => handleCloseNavMenu(page)}>
                   <Typography sx={{ textAlign: "center" }}>{page}</Typography>
                 </MenuItem>
               ))}
@@ -209,7 +212,7 @@ function ResponsiveAppBar() {
             {pages.map((page) => (
               <Button
                 key={page}
-                onClick={handleCloseNavMenu}
+                onClick={() => handleCloseNavMenu(page)}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
                 {page}
