@@ -11,6 +11,11 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Skeleton from "@mui/material/Skeleton";
 import Grid from "@mui/material/Grid";
 import moment from "moment/moment";
+import ReactPlayer from "react-player";
+import ThumbUpIcon from "@mui/icons-material/ThumbUp";
+import CommentIcon from "@mui/icons-material/Comment";
+import ShareIcon from "@mui/icons-material/Share";
+import "./index.css";
 function Media(props) {
   const { loading, item } = props;
 
@@ -26,17 +31,7 @@ function Media(props) {
               height={40}
             />
           ) : (
-            <Avatar
-              alt="Ted talk"
-              src="https://images.ctfassets.net/h6goo9gw1hh6/2sNZtFAWOdP1lmQ33VwRN3/24e953b920a9cd0ff2e1d587742a2472/1-intro-photo-final.jpg?w=1200&h=992&fl=progressive&q=70&fm=jpg"
-            />
-          )
-        }
-        action={
-          loading ? null : (
-            <IconButton aria-label="settings">
-              <MoreVertIcon />
-            </IconButton>
+            <Avatar alt={item.name} src={item.photoURL} />
           )
         }
         title={
@@ -48,7 +43,7 @@ function Media(props) {
               style={{ marginBottom: 6 }}
             />
           ) : (
-            "iHunar"
+            item.name
           )
         }
         subheader={
@@ -61,6 +56,14 @@ function Media(props) {
       />
       {loading ? (
         <Skeleton sx={{ height: 190 }} animation="wave" variant="rectangular" />
+      ) : item.fileType === "video/mp4" ? (
+        <ReactPlayer
+          url={item.fileURl}
+          controls={true}
+          height={190}
+          width={"100%"}
+          // style={{height:"190px",width:"100%"}}
+        />
       ) : (
         <CardMedia
           component="img"
@@ -80,11 +83,7 @@ function Media(props) {
             <Skeleton animation="wave" height={10} width="80%" />
           </React.Fragment>
         ) : (
-          <Typography
-            variant="body2"
-            component="p"
-            sx={{ color: "text.secondary" }}
-          >
+          <Typography variant="body2" component="p" className="card-title">
             {item.title}
           </Typography>
         )}
@@ -100,13 +99,31 @@ function Media(props) {
             <Skeleton animation="wave" height={10} width="80%" />
           </React.Fragment>
         ) : (
-          <Typography
-            variant="body2"
-            component="p"
-            sx={{ color: "text.secondary" }}
-          >
+          <Typography variant="body2" component="p" className="card-details">
             {item.details}
           </Typography>
+        )}
+      </CardContent>
+      <CardContent>
+        {loading ? (
+          <div className="card-footer">
+            <Skeleton animation="wave" height={50} width="30%" />
+            <Skeleton animation="wave" height={50} width="30%" />
+            <Skeleton animation="wave" height={50} width="30%" />
+          </div>
+        ) : (
+          <div className="card-footer">
+            <div>
+              <ThumbUpIcon /> <span>{item.like ? item.like.length : 0}</span>
+            </div>
+            <div>
+              <CommentIcon />
+              <span>{item.comments ? item.comments.length : 0}</span>
+            </div>
+            <div>
+              <ShareIcon /> <span>{item.share   }</span>
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>
@@ -121,13 +138,15 @@ export default function CardComponent({ loading, data }) {
   return (
     <div>
       <Grid container spacing={2}>
-        {(loading ? Array.from(new Array(30)) : data).map((item, index) => {
-          return (
-            <Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={index}>
-              <Media loading={loading} item={item} />
-            </Grid>
-          );
-        }).reverse()}
+        {(loading ? Array.from(new Array(30)) : data)
+          .map((item, index) => {
+            return (
+              <Grid item xs={12} sm={6} md={4} lg={3} xl={3} key={index}>
+                <Media loading={loading} item={item} />
+              </Grid>
+            );
+          })
+          .reverse()}
       </Grid>
     </div>
   );

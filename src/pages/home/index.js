@@ -12,12 +12,21 @@ const Home = () => {
       let newBlogs = [];
       snapshot.forEach((value) => {
         const data = value.val();
-        newBlogs.push(data);
+        const userRef = ref(db, "users/" + data.uid);
+        onValue(userRef, (userRes) => {
+          let userData = {};
+          userData.name = userRes.val().name;
+          userData.photoURL = userRes.val().photoURL;
+
+          console.log("userData--------------", userData);
+          newBlogs.push({ ...data, ...userData });
+        });
       });
       setBlogs([...newBlogs]);
+      console.log("newBlogs=====================>>>>>", newBlogs);
       setLoading(false);
     });
-  }, []);
+  }, [blogs]);
 
   console.log("blogs--------------", blogs);
   return (

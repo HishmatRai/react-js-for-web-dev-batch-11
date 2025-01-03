@@ -155,7 +155,7 @@ const CreateNewBlog = () => {
         <div>
           {fileType === "video/mp4" ? (
             <ReactPlayer
-              url="https://firebasestorage.googleapis.com/v0/b/web-development-batch-11.firebasestorage.app/o/blog-files%2F1dccd5a3-be8b-4676-992d-3c50974441b0?alt=media&token=a8635534-268a-450f-bc8e-ca27822cf5d8"
+              url={fileURl}
               controls={true}
               width={250}
               height={250}
