@@ -140,7 +140,6 @@ const SignUp = () => {
         phoneNumber: form.phoneNumber,
         password: form.password,
       };
-      console.log("User :- ", user);
       setForm({
         fullName: "",
         phoneNumber: "",
@@ -225,13 +224,11 @@ const SignUp = () => {
               // Signed up
               const user = userCredential.user;
               // ...
-              console.log("user----->", user);
             })
             .catch((error) => {
               const errorCode = error.code;
               const errorMessage = error.message;
               // ..
-              console.log("message ------> ", errorMessage);
             });
         }}
       >

@@ -52,7 +52,6 @@ function SignUpForm() {
               signUpProvider: "email",
             });
             toast("Success!", { type: "success" });
-            console.log("user", user);
             setLoading(false);
             navigate("/email-verification");
           });
@@ -60,7 +59,6 @@ function SignUpForm() {
         .catch((error) => {
           const errorMessage = error.message;
           toast(errorMessage, { type: "error" });
-          console.log("errorMessage", errorMessage);
           setLoading(false);
         });
     }

@@ -4,7 +4,6 @@ import Footer from "../footer";
 import "./index.css";
 import Grid from "@mui/material/Grid";
 const Layout = ({ children, show }) => {
-  console.log("layout", show);
   return (
     <div className="layout-container">
       <Navbar show={show} />

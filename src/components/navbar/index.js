@@ -52,7 +52,7 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
-import { useNavigate } from "react-router-dom";
+import { useNavigate ,useLocation} from "react-router-dom";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import CircularProgress from "@mui/material/CircularProgress";
 import { toast } from "react-toastify";
@@ -64,6 +64,8 @@ function ResponsiveAppBar() {
   const database = getDatabase();
   const firestore = getFirestore();
   const navigate = useNavigate();
+  const routerLocation = useLocation();
+  // console.log("routerLocation",routerLocation)
   const auth = getAuth();
   const [isLogin, setIsLogin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -71,7 +73,6 @@ function ResponsiveAppBar() {
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [photoURL, setPhotoURL] = useState("dfd");
   const [name, setName] = useState("");
-  console.log("photoURL", photoURL);
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -79,18 +80,16 @@ function ResponsiveAppBar() {
           const starCountRef = ref(database, "users/" + user.uid);
           onValue(starCountRef, (snapshot) => {
             const data = snapshot.val();
-            console.log("data", data);
-            if (data.photoURL) {
-              setPhotoURL(data.photoURL);
+            if (data?.photoURL) {
+              setPhotoURL(data?.photoURL);
             }
-            setName(data.name);
+            setName(data?.name);
           });
           const unsub = onSnapshot(doc(firestore, "users", user.uid), (doc) => {
-            console.log("Current data: ", doc.data());
-            if (doc.data().photoURL) {
-              setPhotoURL(doc.data().photoURL);
+            if (doc.data()?.photoURL) {
+              setPhotoURL(doc.data()?.photoURL);
             }
-            setName(doc.data().name);
+            setName(doc.data()?.name);
           });
           setIsLogin(true);
           setLoading(false);
@@ -99,7 +98,7 @@ function ResponsiveAppBar() {
         }
       } else {
         setLoading(false);
-        navigate("/");
+        // navigate("/");
       }
     });
   }, []);

@@ -50,7 +50,6 @@ function SignInForm() {
           const user = userCredential.user;
           toast("Signed in!", { type: "success" });
           setLoading(false);
-          console.log("user", user);
           if (user.emailVerified) {
             navigate("/");
           } else {

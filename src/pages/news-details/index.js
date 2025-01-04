@@ -1,7 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 const NewsDetails = (props) => {
-  console.log("details", props);
   const routerLocation = useLocation();
   const { title, pDate, url, text } = routerLocation.state;
   return (

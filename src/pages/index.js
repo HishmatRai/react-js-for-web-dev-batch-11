@@ -9,6 +9,7 @@ import SignInSignUp from "./login-signup";
 import EmailVerification from "./email-verification";
 import Profile from "./profile";
 import CreateNewBlog from "./create-new-blog";
+import BlogDetails from "./blog-details";
 export {
   Home,
   About,
@@ -20,5 +21,6 @@ export {
   SignInSignUp,
   EmailVerification,
   Profile,
-  CreateNewBlog
+  CreateNewBlog,
+  BlogDetails
 };

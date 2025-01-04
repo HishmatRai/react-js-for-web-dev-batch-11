@@ -20,7 +20,6 @@ const SocailLogin = () => {
       .then(async (result) => {
         const credential = GoogleAuthProvider.credentialFromResult(result);
         const user = result.user;
-        console.log("user", user);
         set(ref(database, "users/" + user.uid), {
           name: user.displayName,
           email: user.email,
@@ -36,7 +35,6 @@ const SocailLogin = () => {
       })
       .catch((error) => {
         const errorMessage = error.message;
-        console.log("errorMessage", errorMessage);
         toast(errorMessage, { type: "error" });
       });
   };
@@ -45,7 +43,6 @@ const SocailLogin = () => {
     signInWithPopup(auth, facebookProvider)
       .then(async (result) => {
         const user = result.user;
-        console.log("user", user);
         set(ref(database, "users/" + user.uid), {
           name: user.displayName,
           email: user.email,
@@ -61,7 +58,6 @@ const SocailLogin = () => {
       })
       .catch((error) => {
         const errorMessage = error.message;
-        console.log("errorMessage", errorMessage);
         toast(errorMessage, { type: "error" });
       });
   };

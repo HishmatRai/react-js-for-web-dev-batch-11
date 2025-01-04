@@ -12,8 +12,20 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import LinearProgress from "@mui/material/LinearProgress";
 import Typography from "@mui/material/Typography";
 import ReactPlayer from "react-player";
-import { getDatabase, push, ref as databaseRef } from "firebase/database";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+import {
+  getDatabase,
+  push,
+  ref as databaseRef,
+  update,
+} from "firebase/database";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  setDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 
 import {
   getStorage,
@@ -89,13 +101,25 @@ const CreateNewBlog = () => {
         uid: uid,
         fileType: fileType,
       };
-      console.log("newBlog", newBlog);
-      push(databaseRef(realTime, "blogs/"), newBlog);
-      await addDoc(collection(firestore, "blogs"), newBlog);
+      var blogRealTimeRes = push(databaseRef(realTime, "blogs/"), newBlog);
+      var blogFirestoreRes = await addDoc(
+        collection(firestore, "blogs"),
+        newBlog
+      );
+    
+      update(databaseRef(realTime, "blogs/" + blogRealTimeRes.key), {
+        key: blogRealTimeRes.key,
+      });
+
+      const washingtonRef = doc(firestore, "blogs", blogFirestoreRes.id);
+      await updateDoc(washingtonRef, {
+        key: blogFirestoreRes.id,
+      });
+
       setFileType("");
       setFileUrl("");
       setTitle("");
-      setDetails("")
+      setDetails("");
       toast("Successfully created new post", { type: "success" });
     }
   };
@@ -103,7 +127,6 @@ const CreateNewBlog = () => {
   // file upload
   const fileUploadHandler = (event) => {
     let file = event.target.files[0];
-    console.log(file);
     setProfileUploadStart(true);
     const profileStorageRef = storageRef(storage, `blog-files/${uuidv4()}`);
     const uploadTask = uploadBytesResumable(profileStorageRef, file);
@@ -112,7 +135,6 @@ const CreateNewBlog = () => {
       (snapshot) => {
         const uploadProgress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log("Upload is " + uploadProgress + "% done");
         setProgress(uploadProgress);
       },
       (error) => {
@@ -120,7 +142,6 @@ const CreateNewBlog = () => {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-          console.log("File available at", downloadURL);
           setFileUrl(downloadURL);
           setFileType(file.type);
           setProfileUploadStart(false);

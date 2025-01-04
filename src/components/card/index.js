@@ -20,7 +20,7 @@ function Media(props) {
   const { loading, item } = props;
 
   return (
-    <Card style={{ width: "100%" }}>
+    <Card className="card" style={{ width: "100%" }} onClick={() => alert("fs")}>
       <CardHeader
         avatar={
           loading ? (
@@ -121,7 +121,7 @@ function Media(props) {
               <span>{item.comments ? item.comments.length : 0}</span>
             </div>
             <div>
-              <ShareIcon /> <span>{item.share   }</span>
+              <ShareIcon /> <span>{item.share}</span>
             </div>
           </div>
         )}
@@ -138,7 +138,7 @@ export default function CardComponent({ loading, data }) {
   return (
     <div>
       <Grid container spacing={2}>
-        {(loading ? Array.from(new Array(30)) : data)
+        {(loading ? Array.from(new Array(8)) : data)
           .map((item, index) => {
             return (
               <Grid item xs={12} sm={6} md={4} lg={3} xl={3} key={index}>

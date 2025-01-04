@@ -18,7 +18,6 @@ const EmailVerification = () => {
         if (user.emailVerified) {
           navigate("/");
         }
-        console.log("user", user);
       } else {
         navigate("/signin-signup");
       }

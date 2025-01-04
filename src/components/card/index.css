@@ -27,3 +27,6 @@
   margin-left: 10px;
   font-weight: bold;
 }
+.card{
+  cursor: pointer;
+}

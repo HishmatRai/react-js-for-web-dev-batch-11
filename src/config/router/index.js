@@ -12,6 +12,7 @@ import {
   EmailVerification,
   Profile,
   CreateNewBlog,
+  BlogDetails,
 } from "../../pages";
 const Router = () => {
   return (
@@ -21,6 +22,7 @@ const Router = () => {
         <Route path="/signin-signup" element={<SignInSignUp />} />
         <Route path="/create-new-blog" element={<CreateNewBlog />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/blog-details/:id" element={<BlogDetails />} />
         <Route path="/email-verification" element={<EmailVerification />} />
         <Route path="/log-in" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />

@@ -84,7 +84,6 @@ const Profile = () => {
         const uid = user.uid;
         setUid(uid);
         const unsub = onSnapshot(doc(db, "users", uid), (doc) => {
-          console.log("Current data: ", doc.data());
           const data = doc.data();
           setFullName(data.name);
           setEmail(data.email);
@@ -106,7 +105,6 @@ const Profile = () => {
           setAge(data.age);
           setCourses(data.courses);
           setGender(data.gender);
-          console.log("data", data);
         });
       }
     });
@@ -127,7 +125,6 @@ const Profile = () => {
       (snapshot) => {
         const uploadProgress =
           (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log("Upload is " + uploadProgress + "% done");
         setProgress(uploadProgress);
       },
       (error) => {
@@ -135,7 +132,6 @@ const Profile = () => {
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-          console.log("File available at", downloadURL);
           setPhotoURL(downloadURL);
           const washingtonRef = doc(db, "users", uid);
           await updateDoc(washingtonRef, {
@@ -171,7 +167,6 @@ const Profile = () => {
       });
     }
   };
-  console.log("courses",courses)
   return (
     <Layout>
       <h1>Profile Page</h1>
