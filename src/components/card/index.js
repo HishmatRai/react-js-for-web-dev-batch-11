@@ -16,11 +16,16 @@ import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import CommentIcon from "@mui/icons-material/Comment";
 import ShareIcon from "@mui/icons-material/Share";
 import "./index.css";
+import { useNavigate } from "react-router-dom";
 function Media(props) {
-  const { loading, item } = props;
+  const { loading, item ,navigate} = props;
 
   return (
-    <Card className="card" style={{ width: "100%" }} onClick={() => alert("fs")}>
+    <Card
+      className="card"
+      style={{ width: "100%" }}
+      onClick={() => navigate(`/blog-details/${item.key}`)}
+    >
       <CardHeader
         avatar={
           loading ? (
@@ -135,18 +140,32 @@ Media.propTypes = {
 };
 
 export default function CardComponent({ loading, data }) {
+  const navigate = useNavigate();
+  console.log("----------------data", data);
   return (
     <div>
       <Grid container spacing={2}>
-        {(loading ? Array.from(new Array(8)) : data)
-          .map((item, index) => {
+        {loading ? (
+          Array.from(new Array(8)).map((item, index) => {
             return (
               <Grid item xs={12} sm={6} md={4} lg={3} xl={3} key={index}>
-                <Media loading={loading} item={item} />
+                <Media loading={true} />
               </Grid>
             );
           })
-          .reverse()}
+        ) : data.length === 0 ? (
+          <h1>Data Not Found!</h1>
+        ) : (
+          data
+            .map((item, index) => {
+              return (
+                <Grid item xs={12} sm={6} md={4} lg={3} xl={3} key={index}>
+                  <Media loading={loading} item={item} navigate={navigate} />
+                </Grid>
+              );
+            })
+            .reverse()
+        )}
       </Grid>
     </div>
   );
