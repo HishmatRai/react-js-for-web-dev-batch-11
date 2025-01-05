@@ -84,7 +84,6 @@ function Media(props) {
             <Avatar alt={item.name} src={item.photoURL} />
           )
         }
-      
         title={
           loading ? (
             <Skeleton
@@ -137,11 +136,9 @@ function Media(props) {
           <Typography
             variant="body2"
             component="p"
-            style={{fontWeight:"bold"}}
+            style={{ fontWeight: "bold" }}
           >
-           {
-            item.title
-           }
+            {item.title}
           </Typography>
         )}
       </CardContent>
@@ -176,9 +173,7 @@ function Media(props) {
             component="p"
             sx={{ color: "text.secondary" }}
           >
-            {
-              item.details
-            }
+            {item.details}
           </Typography>
         )}
       </CardContent>
@@ -218,6 +213,7 @@ const BlogDetails = () => {
   const routerLocaiton = useLocation();
   const firestore = getFirestore();
   let path = routerLocaiton.pathname.slice(14);
+  console.log("path---------------", path);
   const [blog, setBlog] = useState({});
   const [uid, setUid] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -226,16 +222,23 @@ const BlogDetails = () => {
       if (user) {
         setUid(user.uid);
         const unsub = onSnapshot(doc(firestore, "blogs", path), (blogRes) => {
-          onSnapshot(doc(firestore, "users", blogRes.data().uid), (userRes) => {
-            console.log("Current user: ", userRes.data());
-            let userData = {
-              name: userRes.data()?.name,
-              photoURL: userRes.data()?.photoURL,
-            };
-            setBlog({ ...blogRes.data(), ...userData });
-            setLoading(false);
-          });
-
+          if (blogRes.data()) {
+            console.log("blogRes", blogRes.data());
+            onSnapshot(
+              doc(firestore, "users", blogRes.data().uid),
+              (userRes) => {
+                console.log("Current user: ", userRes.data());
+                let userData = {
+                  name: userRes.data()?.name,
+                  photoURL: userRes.data()?.photoURL,
+                };
+                setBlog({ ...blogRes.data(), ...userData });
+                setLoading(false);
+              }
+            );
+          } else {
+            navigate("/");
+          }
           // console.log("Current data: ", doc.data());
         });
       }
@@ -253,8 +256,8 @@ const BlogDetails = () => {
       <Media loading={loading} item={blog} />
       <FacebookShareButton url={"shareUrl"}>
         <EmailIcon />
-        </FacebookShareButton>
-       <p>abc.com</p>
+      </FacebookShareButton>
+      <p>abc.com</p>
       <br />
       <br />
     </Layout>
