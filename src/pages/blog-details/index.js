@@ -253,10 +253,12 @@ const BlogDetails = () => {
       <br />
       <br />
       <Media loading={loading} item={blog} />
-      <FacebookShareButton url={"shareUrl"}>
+      <FacebookShareButton
+        url={`https://react-js-for-web-dev-batch-11.vercel.app/blog-details/${path}`}
+      >
         <EmailIcon />
       </FacebookShareButton>
-      <p>abc.com</p>
+      <p>{`https://react-js-for-web-dev-batch-11.vercel.app/blog-details/${path}`}</p>
       <br />
       <br />
     </Layout>
