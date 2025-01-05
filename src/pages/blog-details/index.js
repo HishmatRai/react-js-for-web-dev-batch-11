@@ -18,6 +18,54 @@ import { doc, onSnapshot, getFirestore } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import moment from "moment/moment";
 import ReactPlayer from "react-player";
+import {
+  EmailShareButton,
+  FacebookShareButton,
+  GabShareButton,
+  HatenaShareButton,
+  InstapaperShareButton,
+  LineShareButton,
+  LinkedinShareButton,
+  LivejournalShareButton,
+  MailruShareButton,
+  OKShareButton,
+  PinterestShareButton,
+  PocketShareButton,
+  RedditShareButton,
+  TelegramShareButton,
+  TumblrShareButton,
+  TwitterShareButton,
+  ViberShareButton,
+  VKShareButton,
+  WhatsappShareButton,
+  WorkplaceShareButton,
+} from "react-share";
+import {
+  EmailIcon,
+  FacebookIcon,
+  FacebookMessengerIcon,
+  GabIcon,
+  HatenaIcon,
+  InstapaperIcon,
+  LineIcon,
+  LinkedinIcon,
+  LivejournalIcon,
+  MailruIcon,
+  OKIcon,
+  PinterestIcon,
+  PocketIcon,
+  RedditIcon,
+  TelegramIcon,
+  TumblrIcon,
+  TwitterIcon,
+  ViberIcon,
+  VKIcon,
+  WeiboIcon,
+  WhatsappIcon,
+  WorkplaceIcon,
+  XIcon,
+} from "react-share";
+
 function Media(props) {
   const { loading, item } = props;
 
@@ -203,6 +251,10 @@ const BlogDetails = () => {
       <br />
       <br />
       <Media loading={loading} item={blog} />
+      <FacebookShareButton url={"shareUrl"}>
+        <EmailIcon />
+        </FacebookShareButton>
+       <p>abc.com</p>
       <br />
       <br />
     </Layout>
