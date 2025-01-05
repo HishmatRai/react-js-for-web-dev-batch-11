@@ -18,53 +18,7 @@ import { doc, onSnapshot, getFirestore } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import moment from "moment/moment";
 import ReactPlayer from "react-player";
-import {
-  EmailShareButton,
-  FacebookShareButton,
-  GabShareButton,
-  HatenaShareButton,
-  InstapaperShareButton,
-  LineShareButton,
-  LinkedinShareButton,
-  LivejournalShareButton,
-  MailruShareButton,
-  OKShareButton,
-  PinterestShareButton,
-  PocketShareButton,
-  RedditShareButton,
-  TelegramShareButton,
-  TumblrShareButton,
-  TwitterShareButton,
-  ViberShareButton,
-  VKShareButton,
-  WhatsappShareButton,
-  WorkplaceShareButton,
-} from "react-share";
-import {
-  EmailIcon,
-  FacebookIcon,
-  FacebookMessengerIcon,
-  GabIcon,
-  HatenaIcon,
-  InstapaperIcon,
-  LineIcon,
-  LinkedinIcon,
-  LivejournalIcon,
-  MailruIcon,
-  OKIcon,
-  PinterestIcon,
-  PocketIcon,
-  RedditIcon,
-  TelegramIcon,
-  TumblrIcon,
-  TwitterIcon,
-  ViberIcon,
-  VKIcon,
-  WeiboIcon,
-  WhatsappIcon,
-  WorkplaceIcon,
-  XIcon,
-} from "react-share";
+import { FacebookShareButton,FacebookShareCount,FacebookIcon  } from "react-share";
 
 function Media(props) {
   const { loading, item } = props;
@@ -256,8 +210,9 @@ const BlogDetails = () => {
       <FacebookShareButton
         url={`https://react-js-for-web-dev-batch-11.vercel.app/blog-details/${path}`}
       >
-        <EmailIcon />
+        <FacebookIcon size={32} round={true} />
       </FacebookShareButton>
+   
       <p>{`https://react-js-for-web-dev-batch-11.vercel.app/blog-details/${path}`}</p>
       <br />
       <br />
