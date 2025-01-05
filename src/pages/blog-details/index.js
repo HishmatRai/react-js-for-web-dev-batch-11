@@ -221,27 +221,26 @@ const BlogDetails = () => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUid(user.uid);
-        const unsub = onSnapshot(doc(firestore, "blogs", path), (blogRes) => {
-          if (blogRes.data()) {
-            console.log("blogRes", blogRes.data());
-            onSnapshot(
-              doc(firestore, "users", blogRes.data().uid),
-              (userRes) => {
-                console.log("Current user: ", userRes.data());
-                let userData = {
-                  name: userRes.data()?.name,
-                  photoURL: userRes.data()?.photoURL,
-                };
-                setBlog({ ...blogRes.data(), ...userData });
-                setLoading(false);
-              }
-            );
-          } else {
-            navigate("/");
-          }
-          // console.log("Current data: ", doc.data());
-        });
       }
+    });
+  }, []);
+  useEffect(() => {
+    const unsub = onSnapshot(doc(firestore, "blogs", path), (blogRes) => {
+      if (blogRes.data()) {
+        console.log("blogRes", blogRes.data());
+        onSnapshot(doc(firestore, "users", blogRes.data().uid), (userRes) => {
+          console.log("Current user: ", userRes.data());
+          let userData = {
+            name: userRes.data()?.name,
+            photoURL: userRes.data()?.photoURL,
+          };
+          setBlog({ ...blogRes.data(), ...userData });
+          setLoading(false);
+        });
+      } else {
+        navigate("/");
+      }
+      // console.log("Current data: ", doc.data());
     });
   }, []);
   console.log("blog-----------------", blog);
