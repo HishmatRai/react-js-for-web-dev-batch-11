@@ -12,6 +12,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import LinearProgress from "@mui/material/LinearProgress";
 import Typography from "@mui/material/Typography";
 import ReactPlayer from "react-player";
+import {useNavigate} from 'react-router-dom'
 import {
   getDatabase,
   push,
@@ -63,6 +64,7 @@ const CreateNewBlog = () => {
   const storage = getStorage();
   const realTime = getDatabase();
   const firestore = getFirestore();
+  const navigate = useNavigate()
   const [fileURl, setFileUrl] = useState("");
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
@@ -75,7 +77,9 @@ const CreateNewBlog = () => {
       if (user) {
         const uid = user.uid;
         setUid(uid);
-      }
+      }else(
+        navigate("/")
+      )
     });
   }, []);
   const createHandler = async () => {

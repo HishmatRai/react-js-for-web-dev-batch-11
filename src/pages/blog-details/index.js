@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Layout } from "../../components";
+import { Layout, CommentCard, Modal } from "../../components";
 import { useNavigate, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import Card from "@mui/material/Card";
@@ -14,11 +14,24 @@ import Skeleton from "@mui/material/Skeleton";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import CommentIcon from "@mui/icons-material/Comment";
 import ShareIcon from "@mui/icons-material/Share";
-import { doc, onSnapshot, getFirestore } from "firebase/firestore";
+import {
+  doc,
+  onSnapshot,
+  getFirestore,
+  updateDoc,
+  ref,
+} from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import moment from "moment/moment";
 import ReactPlayer from "react-player";
-import { FacebookShareButton,FacebookShareCount,FacebookIcon  } from "react-share";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import {
+  FacebookShareButton,
+  FacebookShareCount,
+  FacebookIcon,
+} from "react-share";
 
 function Media(props) {
   const { loading, item } = props;
@@ -167,14 +180,27 @@ const BlogDetails = () => {
   const routerLocaiton = useLocation();
   const firestore = getFirestore();
   let path = routerLocaiton.pathname.slice(14);
-  console.log("path---------------", path);
+  // console.log("path---------------", path);
   const [blog, setBlog] = useState({});
   const [uid, setUid] = useState(null);
+  const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [photoURL, setPhotoURL] = useState(null);
+  const [name, setName] = useState("");
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUid(user.uid);
+        const unsub = onSnapshot(doc(firestore, "users", user.uid), (doc) => {
+          if (doc.data()?.photoURL) {
+            setPhotoURL(doc.data()?.photoURL);
+          }
+          setName(doc.data()?.name);
+        });
+      } else {
+        setUid(null);
+        setPhotoURL(null);
       }
     });
   }, []);
@@ -183,11 +209,21 @@ const BlogDetails = () => {
       if (blogRes.data()) {
         console.log("blogRes", blogRes.data());
         onSnapshot(doc(firestore, "users", blogRes.data().uid), (userRes) => {
-          console.log("Current user: ", userRes.data());
+          // console.log("Current user: ", userRes.data());
           let userData = {
             name: userRes.data()?.name,
             photoURL: userRes.data()?.photoURL,
           };
+          if (blogRes.data()?.comments.length !== 0) {
+            blogRes.data()?.comments.forEach((commentRes) => {
+              onSnapshot(
+                doc(firestore, "users", commentRes.uid),
+                (commetUserRes) => {
+                  console.log("comment available", commetUserRes.data());
+                }
+              );
+            });
+          }
           setBlog({ ...blogRes.data(), ...userData });
           setLoading(false);
         });
@@ -197,7 +233,37 @@ const BlogDetails = () => {
       // console.log("Current data: ", doc.data());
     });
   }, []);
-  console.log("blog-----------------", blog);
+
+  // share
+  const shareHandler = async () => {
+    let share = blog.share;
+    share = share + 1;
+
+    let washingtonRef = doc(firestore, "blogs", path);
+    await updateDoc(washingtonRef, {
+      share: share,
+    });
+  };
+  // comment handler
+  const commentHanlder = async () => {
+    let commets = blog.comments;
+    if (uid) {
+      let newComment = {
+        commentText: comment,
+        uid: uid,
+        commentDate: moment().format(),
+      };
+      commets.push(newComment);
+      let washingtonRef = doc(firestore, "blogs", path);
+      await updateDoc(washingtonRef, {
+        comments: commets,
+      });
+      setComment("");
+      console.log("newComment", newComment);
+    } else {
+      setOpen(true);
+    }
+  };
   return (
     <Layout>
       <h1>Blog Details Page</h1>
@@ -207,15 +273,65 @@ const BlogDetails = () => {
       <br />
       <br />
       <Media loading={loading} item={blog} />
+      <br />
+      <br />
       <FacebookShareButton
         url={`https://react-js-for-web-dev-batch-11.vercel.app/blog-details/${path}`}
+        onClick={shareHandler}
       >
         <FacebookIcon size={32} round={true} />
       </FacebookShareButton>
-   
+
       <p>{`https://react-js-for-web-dev-batch-11.vercel.app/blog-details/${path}`}</p>
       <br />
       <br />
+      <h1>{blog?.comments?.length} Comments</h1>
+      <br />
+      <br />
+      <Box
+        component="form"
+        sx={{ "& .MuiTextField-root": { width: "100%" } }}
+        noValidate
+        autoComplete="off"
+      >
+        <div style={{ display: "flex" }}>
+          <Avatar alt={name} src={photoURL} />
+          <TextField
+            id="outlined-multiline-static"
+            label="Add a comment..."
+            multiline
+            rows={4}
+            style={{ marginLeft: "20px" }}
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: "20px",
+          }}
+        >
+          <Button
+            variant="contained"
+            style={{ textTransform: "capitalize" }}
+            onClick={commentHanlder}
+            disabled={comment === ""}
+          >
+            Comment
+          </Button>
+        </div>
+      </Box>
+      <CommentCard />
+      <Modal
+        open={open}
+        handleClose={() => setOpen(false)}
+        loginHandler={() => {
+          setOpen(false);
+          navigate("/signin-signup");
+        }}
+      />
     </Layout>
   );
 };
