@@ -6,32 +6,42 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
-
-export default function CommentCard() {
+import moment from "moment";
+export default function CommentCard({data}) {
+  // console.log("comment data",data)
   return (
+
     <List sx={{ width: "100%", bgcolor: "background.paper" }}>
-      <ListItem alignItems="flex-start">
-        <ListItemAvatar>
-          <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-        </ListItemAvatar>
-        <ListItemText
-          primary="iHunar"
-          secondary={
-            <React.Fragment>
-              <Typography
-                component="span"
-                variant="body2"
-                sx={{ color: "text.primary", display: "inline" }}
-              >
-                iHunar
-              </Typography>
-              <br />
-              {"Time"}
-            </React.Fragment>
-          }
-        />
-      </ListItem>
-      <Divider variant="inset" component="li" />
+      {data?.map((item,index)=>{
+        return(
+          <div key={index}>
+          <ListItem alignItems="flex-start">
+            <ListItemAvatar>
+              <Avatar alt={item.name} src={item.photoURL} />
+            </ListItemAvatar>
+            <ListItemText
+              primary={item.name}
+              secondary={
+                <React.Fragment>
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    sx={{ color: "text.primary", display: "inline" }}
+                  >
+                    {item.commentText}
+                  </Typography>
+                  <br />
+                 {moment(item.commentDate).fromNow()}
+                </React.Fragment>
+              }
+            />
+          </ListItem>
+          <Divider variant="inset" component="li" />
+          </div>
+        )
+      })}
+   
     </List>
+
   );
 }

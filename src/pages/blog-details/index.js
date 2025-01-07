@@ -20,6 +20,7 @@ import {
   getFirestore,
   updateDoc,
   ref,
+  getDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import moment from "moment/moment";
@@ -34,7 +35,7 @@ import {
 } from "react-share";
 
 function Media(props) {
-  const { loading, item } = props;
+  const { loading, item, alreadyLike } = props;
 
   return (
     <Card>
@@ -154,7 +155,8 @@ function Media(props) {
         ) : (
           <div className="card-footer">
             <div>
-              <ThumbUpIcon /> <span>{item.like.length}</span>
+              <ThumbUpIcon style={{ color: alreadyLike ? "blue" : "gray" }} />
+              <span>{item.like.length}</span>
             </div>
             <div>
               <CommentIcon />
@@ -188,51 +190,111 @@ const BlogDetails = () => {
   const [open, setOpen] = useState(false);
   const [photoURL, setPhotoURL] = useState(null);
   const [name, setName] = useState("");
+  const [alreadyLike, setAlradyLike] = useState(false);
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUid(user.uid);
-        const unsub = onSnapshot(doc(firestore, "users", user.uid), (doc) => {
-          if (doc.data()?.photoURL) {
-            setPhotoURL(doc.data()?.photoURL);
+        console.log("user.uid", user.uid);
+        const unsub = onSnapshot(
+          doc(firestore, "users", user.uid),
+          (userREs) => {
+            if (userREs.data()?.photoURL) {
+              setPhotoURL(userREs.data()?.photoURL);
+            }
+            setName(userREs.data()?.name);
+
+            // blog data
+            const unsub = onSnapshot(
+              doc(firestore, "blogs", path),
+              async (blogRes) => {
+                setAlradyLike(blogRes.data().like.includes(user.uid));
+              }
+            );
           }
-          setName(doc.data()?.name);
-        });
+        );
       } else {
         setUid(null);
         setPhotoURL(null);
+        setAlradyLike(false);
       }
     });
   }, []);
+  // useEffect(() => {
+  //   const unsub = onSnapshot(doc(firestore, "blogs", path), (blogRes) => {
+  //     if (blogRes.data()) {
+  //       console.log("blogRes", blogRes.data());
+  //       onSnapshot(doc(firestore, "users", blogRes.data().uid), (userRes) => {
+  //         // console.log("Current user: ", userRes.data());
+  //         let userData = {
+  //           name: userRes.data()?.name,
+  //           photoURL: userRes.data()?.photoURL,
+  //         };
+  //         if (blogRes.data()?.comments.length !== 0) {
+  //           let commentData = {};
+  //           blogRes.data()?.comments.forEach((commentRes) => {
+  //             onSnapshot(
+  //               doc(firestore, "users", commentRes.uid),
+  //               (commetUserRes) => {
+  //                 commentData.name = commetUserRes.data()?.name;
+  //                 commentData.photoURL = commetUserRes.data()?.photoURL;
+  //               }
+  //             );
+  //             console.log("commentData", commentData);
+  //           });
+  //           setBlog({ ...blogRes.data(), ...userData,...commentData });
+  //         }else{
+  //           setBlog({ ...blogRes.data(), ...userData });
+  //         }
+
+  //         setLoading(false);
+  //       });
+  //     } else {
+  //       navigate("/");
+  //     }
+  //     // console.log("Current data: ", doc.data());
+  //   });
+  // }, []);
   useEffect(() => {
-    const unsub = onSnapshot(doc(firestore, "blogs", path), (blogRes) => {
+    const unsub = onSnapshot(doc(firestore, "blogs", path), async (blogRes) => {
       if (blogRes.data()) {
-        console.log("blogRes", blogRes.data());
-        onSnapshot(doc(firestore, "users", blogRes.data().uid), (userRes) => {
-          // console.log("Current user: ", userRes.data());
-          let userData = {
-            name: userRes.data()?.name,
-            photoURL: userRes.data()?.photoURL,
-          };
-          if (blogRes.data()?.comments.length !== 0) {
-            blogRes.data()?.comments.forEach((commentRes) => {
-              onSnapshot(
-                doc(firestore, "users", commentRes.uid),
-                (commetUserRes) => {
-                  console.log("comment available", commetUserRes.data());
-                }
-              );
+        const blogData = blogRes.data();
+
+        // Fetch the user who created the blog
+        const userRes = await getDoc(doc(firestore, "users", blogData.uid));
+        const userData = {
+          name: userRes.data()?.name,
+          photoURL: userRes.data()?.photoURL,
+        };
+
+        // Prepare comment data
+        let commentData = [];
+        if (blogData.comments.length !== 0) {
+          for (const commentRes of blogData.comments) {
+            const commentUserRes = await getDoc(
+              doc(firestore, "users", commentRes.uid)
+            );
+            const commentUserData = {
+              name: commentUserRes.data()?.name,
+              photoURL: commentUserRes.data()?.photoURL,
+            };
+            commentData.push({
+              ...commentRes,
+              ...commentUserData,
             });
           }
-          setBlog({ ...blogRes.data(), ...userData });
-          setLoading(false);
-        });
+        }
+
+        // Set blog data including user data and comments
+        setBlog({ ...blogData, ...userData, comments: commentData });
+        setLoading(false);
       } else {
         navigate("/");
       }
-      // console.log("Current data: ", doc.data());
     });
-  }, []);
+
+    return () => unsub();
+  }, [path]);
 
   // share
   const shareHandler = async () => {
@@ -259,11 +321,12 @@ const BlogDetails = () => {
         comments: commets,
       });
       setComment("");
-      console.log("newComment", newComment);
     } else {
       setOpen(true);
     }
   };
+
+  console.log("blog--------------------->>>>", blog);
   return (
     <Layout>
       <h1>Blog Details Page</h1>
@@ -272,7 +335,7 @@ const BlogDetails = () => {
       <button onClick={() => navigate(-1)}>Back</button>
       <br />
       <br />
-      <Media loading={loading} item={blog} />
+      <Media loading={loading} item={blog} alreadyLike={alreadyLike} />
       <br />
       <br />
       <FacebookShareButton
@@ -323,7 +386,7 @@ const BlogDetails = () => {
           </Button>
         </div>
       </Box>
-      <CommentCard />
+      <CommentCard data={blog.comments} />
       <Modal
         open={open}
         handleClose={() => setOpen(false)}

@@ -16,6 +16,7 @@ const Home = () => {
 
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+
   // useEffect(() => {
   //   const starCountRef = ref(db, "blogs/");
   //   onValue(starCountRef, (snapshot) => {
@@ -83,12 +84,12 @@ const Home = () => {
         //   // console.log("newBlogs ", newBlogs);
         // });
         const q = query(collection(firestore, "blogs"));
-        const unsubscribe =await onSnapshot(q, (querySnapshot) => {
+        const unsubscribe = await onSnapshot(q, (querySnapshot) => {
           const newBlogs = [];
           const userUnsubs = [];
-          querySnapshot.forEach(async(blogRes) => {
+          querySnapshot.forEach(async (blogRes) => {
             const userData = {}; // Object to store user data
-            const unsub =await onSnapshot(
+            const unsub = await onSnapshot(
               doc(firestore, "users", blogRes.data().uid),
               (userRes) => {
                 userData.name = userRes.data()?.name;
@@ -125,9 +126,12 @@ const Home = () => {
     fetchData();
   }, []);
 
-  console.log("blogs", blogs);
+  // console.log("blogs", blogs);
+
+  
   return (
     <Layout>
+    
       <Card loading={loading} data={blogs} />
     </Layout>
   );

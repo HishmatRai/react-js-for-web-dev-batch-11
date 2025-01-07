@@ -17,6 +17,8 @@ import CommentIcon from "@mui/icons-material/Comment";
 import ShareIcon from "@mui/icons-material/Share";
 import "./index.css";
 import { useNavigate } from "react-router-dom";
+import Box from "@mui/material/Box";
+import TextField from "@mui/material/TextField";
 function Media(props) {
   const { loading, item ,navigate} = props;
 
@@ -141,9 +143,33 @@ Media.propTypes = {
 
 export default function CardComponent({ loading, data }) {
   const navigate = useNavigate();
-  console.log("----------------data", data);
+  const [search, setSearch] = useState("");
+  // seach
+  let filterBlogs = data.filter((filterRes) => {
+    return filterRes.title.toLowerCase().includes(search.toLowerCase())
+  }
+  );
+  // console.log("filterRes ---- >", filterBlogs);
+  // console.log("----------------data", data);
   return (
     <div>
+       <Box
+        component="form"
+        sx={{ "& > :not(style)": { m: 1, width: "100%" } }}
+        noValidate
+        autoComplete="off"
+      >
+        <TextField
+          id="outlined-basic"
+          label="Search ..."
+          type="search"
+          variant="outlined"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </Box>
+      <br />
+      <br />
       <Grid container spacing={2}>
         {loading ? (
           Array.from(new Array(8)).map((item, index) => {
@@ -153,10 +179,10 @@ export default function CardComponent({ loading, data }) {
               </Grid>
             );
           })
-        ) : data.length === 0 ? (
+        ) : filterBlogs.length === 0 ? (
           <h1>Data Not Found!</h1>
         ) : (
-          data
+          filterBlogs
             .map((item, index) => {
               return (
                 <Grid item xs={12} sm={6} md={4} lg={3} xl={3} key={index}>
