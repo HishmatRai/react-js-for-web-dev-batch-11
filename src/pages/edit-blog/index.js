@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Layout, CommentCard, Modal } from "../../components";
+import { Layout, CommentCard } from "../../components";
 import { useNavigate, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import Card from "@mui/material/Card";
@@ -14,6 +14,10 @@ import Skeleton from "@mui/material/Skeleton";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import CommentIcon from "@mui/icons-material/Comment";
 import ShareIcon from "@mui/icons-material/Share";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Modal from "@mui/material/Modal";
+import TextField from "@mui/material/TextField";
 import {
   doc,
   onSnapshot,
@@ -25,14 +29,17 @@ import {
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import moment from "moment/moment";
 import ReactPlayer from "react-player";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import {
-  FacebookShareButton,
-  FacebookShareCount,
-  FacebookIcon,
-} from "react-share";
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
 
 function Media(props) {
   const { loading = false, item, alreadyLike } = props;
@@ -40,41 +47,11 @@ function Media(props) {
   return (
     <Card>
       <CardHeader
-        avatar={
-          loading ? (
-            <Skeleton
-              animation="wave"
-              variant="circular"
-              width={40}
-              height={40}
-            />
-          ) : (
-            <Avatar alt={item.name} src={item.photoURL} />
-          )
-        }
-        title={
-          loading ? (
-            <Skeleton
-              animation="wave"
-              height={10}
-              width="80%"
-              style={{ marginBottom: 6 }}
-            />
-          ) : (
-            item.name
-          )
-        }
-        subheader={
-          loading ? (
-            <Skeleton animation="wave" height={10} width="40%" />
-          ) : (
-            moment(item.createdDate).fromNow()
-          )
-        }
+        avatar={<Avatar alt={item.name} src={item.photoURL} />}
+        title={item.name}
+        subheader={moment(item.createdDate).fromNow()}
       />
-      {loading ? (
-        <Skeleton sx={{ height: 590 }} animation="wave" variant="rectangular" />
-      ) : item.fileType === "video/mp4" ? (
+      {item.fileType === "video/mp4" ? (
         <ReactPlayer
           url={item.fileURl}
           controls={true}
@@ -91,16 +68,7 @@ function Media(props) {
         />
       )}
       <CardContent>
-        {loading ? (
-          <React.Fragment>
-            <Skeleton
-              animation="wave"
-              height={10}
-              style={{ marginBottom: 6 }}
-            />
-            <Skeleton animation="wave" height={10} width="80%" />
-          </React.Fragment>
-        ) : (
+        {
           <Typography
             variant="body2"
             component="p"
@@ -108,65 +76,31 @@ function Media(props) {
           >
             {item.title}
           </Typography>
-        )}
+        }
       </CardContent>
       <CardContent>
-        {loading ? (
-          <React.Fragment>
-            <Skeleton
-              animation="wave"
-              height={20}
-              style={{ marginBottom: 6 }}
-            />
-            <Skeleton
-              animation="wave"
-              height={20}
-              style={{ marginBottom: 6 }}
-            />
-            <Skeleton
-              animation="wave"
-              height={20}
-              style={{ marginBottom: 6 }}
-            />
-            <Skeleton
-              animation="wave"
-              height={20}
-              style={{ marginBottom: 6 }}
-            />
-            <Skeleton animation="wave" height={20} width="80%" />
-          </React.Fragment>
-        ) : (
-          <Typography
-            variant="body2"
-            component="p"
-            sx={{ color: "text.secondary" }}
-          >
-            {item.details}
-          </Typography>
-        )}
+        <Typography
+          variant="body2"
+          component="p"
+          sx={{ color: "text.secondary" }}
+        >
+          {item.details}
+        </Typography>
       </CardContent>
       <CardContent>
-        {loading ? (
-          <div className="card-footer">
-            <Skeleton animation="wave" height={50} width="30%" />
-            <Skeleton animation="wave" height={50} width="30%" />
-            <Skeleton animation="wave" height={50} width="30%" />
+        <div className="card-footer">
+          <div>
+            <ThumbUpIcon style={{ color: alreadyLike ? "blue" : "gray" }} />
+            <span>{item?.like?.length}</span>
           </div>
-        ) : (
-          <div className="card-footer">
-            <div>
-              <ThumbUpIcon style={{ color: alreadyLike ? "blue" : "gray" }} />
-              <span>{item.like.length}</span>
-            </div>
-            <div>
-              <CommentIcon />
-              <span>{item.comments.length}</span>
-            </div>
-            <div>
-              <ShareIcon /> <span>{item.share}</span>
-            </div>
+          <div>
+            <CommentIcon />
+            <span>{item?.comments?.length}</span>
           </div>
-        )}
+          <div>
+            <ShareIcon /> <span>{item?.share}</span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
@@ -185,10 +119,13 @@ const EditBlog = () => {
   const [uid, setUid] = useState(null);
   const [comment, setComment] = useState("");
   const [alreadyLike, setAlradyLike] = useState(false);
+  const [edit, setEdit] = useState(true);
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         if (routerLocaiton.state) {
+          setBlog(routerLocaiton.state);
+          setAlradyLike(routerLocaiton.state.like.includes(user.uid));
           console.log("user.uid", user.uid);
         } else {
           navigate("/dashboard");
@@ -198,7 +135,7 @@ const EditBlog = () => {
       }
     });
   }, []);
-
+  console.log("blog", blog);
   return (
     <Layout>
       <h1>Edit Page</h1>
@@ -207,13 +144,48 @@ const EditBlog = () => {
       <button onClick={() => navigate(-1)}>Back</button>
       <br />
       <br />
-      {/* <Media item={blog} alreadyLike={alreadyLike} /> */}
+      <Media item={blog} alreadyLike={alreadyLike} />
       <br />
       <br />
-      {/* <h1>{blog?.comments?.length} Comments</h1> */}
+      <button onClick={() => setEdit(true)}>Edit</button>
       <br />
       <br />
-      {/* <CommentCard data={blog.comments} /> */}
+      <h1>{blog?.comments?.length} Comments</h1>
+      <br />
+      <br />
+      <CommentCard data={blog?.comments} />
+      <Modal
+        open={edit}
+        onClose={() => setEdit(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <img src={blog.fileURl} width={"100%"} style={{maxHeight:"400px"}}/>
+          <br /> <br />
+          <TextField
+            id="outlined-basic"
+            label="Title"
+            value={blog.title}
+            variant="outlined"
+            // onChange={(e) => setTitle(e.target.value)}
+            style={{ width: "100%" }}
+          />
+          {/* {title.length !== 0 && <p>{title.length}</p>} */}
+          <br /> <br />
+          <textarea
+            placeholder="Details"
+            rows={15}
+            style={{ width: "100%" }}
+            value={blog.details}
+            // onChange={(e) => setDetails(e.target.value)}
+          ></textarea>
+          {/* {details.length !== 0 && <p>{details.length}</p>} */}
+          <br /> <br />
+          <button onClick={()=> setEdit(false)}>Cancel</button>
+          <button>Update</button>
+        </Box>
+      </Modal>
     </Layout>
   );
 };

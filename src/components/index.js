@@ -16,5 +16,5 @@ export {
   ChildrenComponent,
   Layout,
   CommentCard,
-  Modal
+  Modal,
 };
