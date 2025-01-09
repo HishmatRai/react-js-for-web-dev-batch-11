@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Layout, CommentCard, Modal } from "../../components";
+import { useNavigate, useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import Card from "@mui/material/Card";
 import CardHeader from "@mui/material/CardHeader";
@@ -9,31 +11,34 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import Skeleton from "@mui/material/Skeleton";
-import Grid from "@mui/material/Grid";
-import moment from "moment/moment";
-import ReactPlayer from "react-player";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import CommentIcon from "@mui/icons-material/Comment";
 import ShareIcon from "@mui/icons-material/Share";
-import "./index.css";
-import { useNavigate } from "react-router-dom";
+import {
+  doc,
+  onSnapshot,
+  getFirestore,
+  updateDoc,
+  ref,
+  getDoc,
+} from "firebase/firestore";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import moment from "moment/moment";
+import ReactPlayer from "react-player";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import {
+  FacebookShareButton,
+  FacebookShareCount,
+  FacebookIcon,
+} from "react-share";
+
 function Media(props) {
-  const { loading, item, navigate, edit } = props;
+  const { loading = false, item, alreadyLike } = props;
 
   return (
-    <Card
-      className="card"
-      style={{ width: "100%" }}
-      onClick={() => {
-        if (edit) {
-          navigate("/edit-blog", { state: item });
-        } else {
-          navigate(`/blog-details/${item.key}`);
-        }
-      }}
-    >
+    <Card>
       <CardHeader
         avatar={
           loading ? (
@@ -68,19 +73,19 @@ function Media(props) {
         }
       />
       {loading ? (
-        <Skeleton sx={{ height: 190 }} animation="wave" variant="rectangular" />
+        <Skeleton sx={{ height: 590 }} animation="wave" variant="rectangular" />
       ) : item.fileType === "video/mp4" ? (
         <ReactPlayer
           url={item.fileURl}
           controls={true}
-          height={190}
+          height={590}
           width={"100%"}
           // style={{height:"190px",width:"100%"}}
         />
       ) : (
         <CardMedia
           component="img"
-          height="190"
+          height="590"
           image={item.fileURl}
           alt="Nicola Sturgeon on a TED talk stage"
         />
@@ -96,7 +101,11 @@ function Media(props) {
             <Skeleton animation="wave" height={10} width="80%" />
           </React.Fragment>
         ) : (
-          <Typography variant="body2" component="p" className="card-title">
+          <Typography
+            variant="body2"
+            component="p"
+            style={{ fontWeight: "bold" }}
+          >
             {item.title}
           </Typography>
         )}
@@ -106,13 +115,32 @@ function Media(props) {
           <React.Fragment>
             <Skeleton
               animation="wave"
-              height={10}
+              height={20}
               style={{ marginBottom: 6 }}
             />
-            <Skeleton animation="wave" height={10} width="80%" />
+            <Skeleton
+              animation="wave"
+              height={20}
+              style={{ marginBottom: 6 }}
+            />
+            <Skeleton
+              animation="wave"
+              height={20}
+              style={{ marginBottom: 6 }}
+            />
+            <Skeleton
+              animation="wave"
+              height={20}
+              style={{ marginBottom: 6 }}
+            />
+            <Skeleton animation="wave" height={20} width="80%" />
           </React.Fragment>
         ) : (
-          <Typography variant="body2" component="p" className="card-details">
+          <Typography
+            variant="body2"
+            component="p"
+            sx={{ color: "text.secondary" }}
+          >
             {item.details}
           </Typography>
         )}
@@ -127,11 +155,12 @@ function Media(props) {
         ) : (
           <div className="card-footer">
             <div>
-              <ThumbUpIcon /> <span>{item.like ? item.like.length : 0}</span>
+              <ThumbUpIcon style={{ color: alreadyLike ? "blue" : "gray" }} />
+              <span>{item.like.length}</span>
             </div>
             <div>
               <CommentIcon />
-              <span>{item.comments ? item.comments.length : 0}</span>
+              <span>{item.comments.length}</span>
             </div>
             <div>
               <ShareIcon /> <span>{item.share}</span>
@@ -146,63 +175,46 @@ function Media(props) {
 Media.propTypes = {
   loading: PropTypes.bool,
 };
-
-export default function CardComponent({ loading, data, edit }) {
+const EditBlog = () => {
   const navigate = useNavigate();
-  const [search, setSearch] = useState("");
-  // seach
-  let filterBlogs = data.filter((filterRes) => {
-    return filterRes.title.toLowerCase().includes(search.toLowerCase());
-  });
-  // console.log("filterRes ---- >", filterBlogs);
-  // console.log("----------------data", data);
+  const auth = getAuth();
+  const routerLocaiton = useLocation();
+  console.log("routerLocaiton", routerLocaiton);
+  const firestore = getFirestore();
+  const [blog, setBlog] = useState({});
+  const [uid, setUid] = useState(null);
+  const [comment, setComment] = useState("");
+  const [alreadyLike, setAlradyLike] = useState(false);
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        if (routerLocaiton.state) {
+          console.log("user.uid", user.uid);
+        } else {
+          navigate("/dashboard");
+        }
+      } else {
+        navigate("/");
+      }
+    });
+  }, []);
+
   return (
-    <div>
-      <Box
-        component="form"
-        sx={{ "& > :not(style)": { m: 1, width: "100%" } }}
-        noValidate
-        autoComplete="off"
-      >
-        <TextField
-          id="outlined-basic"
-          label="Search ..."
-          type="search"
-          variant="outlined"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </Box>
+    <Layout>
+      <h1>Edit Page</h1>
       <br />
       <br />
-      <Grid container spacing={2}>
-        {loading ? (
-          Array.from(new Array(8)).map((item, index) => {
-            return (
-              <Grid item xs={12} sm={6} md={4} lg={3} xl={3} key={index}>
-                <Media loading={true} edit={edit} />
-              </Grid>
-            );
-          })
-        ) : filterBlogs.length === 0 ? (
-          <h1>Data Not Found!</h1>
-        ) : (
-          filterBlogs
-            .map((item, index) => {
-              return (
-                <Grid item xs={12} sm={6} md={4} lg={3} xl={3} key={index}>
-                  <Media
-                    loading={loading}
-                    item={item}
-                    navigate={navigate}
-                    edit={edit}
-                  />
-                </Grid>
-              );
-            })
-            .reverse()
-        )}
-      </Grid>
-    </div>
+      <button onClick={() => navigate(-1)}>Back</button>
+      <br />
+      <br />
+      {/* <Media item={blog} alreadyLike={alreadyLike} /> */}
+      <br />
+      <br />
+      {/* <h1>{blog?.comments?.length} Comments</h1> */}
+      <br />
+      <br />
+      {/* <CommentCard data={blog.comments} /> */}
+    </Layout>
   );
-}
+};
+export default EditBlog;

@@ -10,6 +10,8 @@ import EmailVerification from "./email-verification";
 import Profile from "./profile";
 import CreateNewBlog from "./create-new-blog";
 import BlogDetails from "./blog-details";
+import Dashboard from "./dashboard";
+import EditBlog from "./edit-blog";
 export {
   Home,
   About,
@@ -22,5 +24,7 @@ export {
   EmailVerification,
   Profile,
   CreateNewBlog,
-  BlogDetails
+  BlogDetails,
+  Dashboard,
+  EditBlog
 };

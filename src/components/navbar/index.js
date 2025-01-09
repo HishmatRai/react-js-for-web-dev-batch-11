@@ -52,7 +52,7 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import AdbIcon from "@mui/icons-material/Adb";
-import { useNavigate ,useLocation} from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import CircularProgress from "@mui/material/CircularProgress";
 import { toast } from "react-toastify";
@@ -113,6 +113,8 @@ function ResponsiveAppBar() {
     setAnchorElNav(null);
     if (page === "Create New Blog") {
       navigate("/create-new-blog");
+    } else if (page === "Dashboard") {
+      navigate("/dashboard");
     }
   };
   const handleCloseUserMenu = (setting) => {

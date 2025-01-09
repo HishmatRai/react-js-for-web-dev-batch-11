@@ -8,6 +8,8 @@ import {
   where,
   onSnapshot,
   doc,
+  limit,
+  orderBy
 } from "firebase/firestore";
 
 const Home = () => {
@@ -83,7 +85,7 @@ const Home = () => {
         //   setBlogs([...newBlogs]);
         //   // console.log("newBlogs ", newBlogs);
         // });
-        const q = query(collection(firestore, "blogs"));
+        const q = query(collection(firestore, "blogs"),orderBy("createdDate"));
         const unsubscribe = await onSnapshot(q, (querySnapshot) => {
           const newBlogs = [];
           const userUnsubs = [];

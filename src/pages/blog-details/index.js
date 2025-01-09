@@ -35,7 +35,7 @@ import {
 } from "react-share";
 
 function Media(props) {
-  const { loading, item, alreadyLike } = props;
+  const { loading, item, alreadyLike, likeHandler } = props;
 
   return (
     <Card>
@@ -154,7 +154,7 @@ function Media(props) {
           </div>
         ) : (
           <div className="card-footer">
-            <div>
+            <div style={{ cursor: "pointer" }} onClick={likeHandler}>
               <ThumbUpIcon style={{ color: alreadyLike ? "blue" : "gray" }} />
               <span>{item.like.length}</span>
             </div>
@@ -326,7 +326,30 @@ const BlogDetails = () => {
     }
   };
 
-  console.log("blog--------------------->>>>", blog);
+  // like
+  const likeHandler = async () => {
+    if (uid) {
+      let likes = blog.like;
+      if (alreadyLike) {
+        for (let index in likes) {
+          if (likes[index] === uid) {
+            likes.splice(index, 1);
+            console.log("remove", index);
+          }
+        }
+      } else {
+        likes.push(uid);
+      }
+      let washingtonRef = doc(firestore, "blogs", path);
+      await updateDoc(washingtonRef, {
+        like: likes,
+      });
+      // console.log("login true",likes);
+      // console.log("alreadyLike",alreadyLike);
+    } else {
+      setOpen(true);
+    }
+  };
   return (
     <Layout>
       <h1>Blog Details Page</h1>
@@ -335,7 +358,12 @@ const BlogDetails = () => {
       <button onClick={() => navigate(-1)}>Back</button>
       <br />
       <br />
-      <Media loading={loading} item={blog} alreadyLike={alreadyLike} />
+      <Media
+        loading={loading}
+        item={blog}
+        alreadyLike={alreadyLike}
+        likeHandler={likeHandler}
+      />
       <br />
       <br />
       <FacebookShareButton
