@@ -12,7 +12,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import LinearProgress from "@mui/material/LinearProgress";
 import Typography from "@mui/material/Typography";
 import ReactPlayer from "react-player";
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 import {
   getDatabase,
   push,
@@ -59,12 +59,13 @@ function LinearProgressWithLabel(props) {
     </Box>
   );
 }
+let blogFileUid = uuidv4();
 const CreateNewBlog = () => {
   const auth = getAuth();
   const storage = getStorage();
   const realTime = getDatabase();
   const firestore = getFirestore();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [fileURl, setFileUrl] = useState("");
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
@@ -77,9 +78,7 @@ const CreateNewBlog = () => {
       if (user) {
         const uid = user.uid;
         setUid(uid);
-      }else(
-        navigate("/")
-      )
+      } else navigate("/");
     });
   }, []);
   const createHandler = async () => {
@@ -104,13 +103,14 @@ const CreateNewBlog = () => {
         createdDate: moment().format(),
         uid: uid,
         fileType: fileType,
+        fileUid: blogFileUid,
       };
       var blogRealTimeRes = push(databaseRef(realTime, "blogs/"), newBlog);
       var blogFirestoreRes = await addDoc(
         collection(firestore, "blogs"),
         newBlog
       );
-    
+
       update(databaseRef(realTime, "blogs/" + blogRealTimeRes.key), {
         key: blogRealTimeRes.key,
       });
@@ -125,14 +125,16 @@ const CreateNewBlog = () => {
       setTitle("");
       setDetails("");
       toast("Successfully created new post", { type: "success" });
+      window.location.reload();
     }
   };
 
   // file upload
+
   const fileUploadHandler = (event) => {
     let file = event.target.files[0];
     setProfileUploadStart(true);
-    const profileStorageRef = storageRef(storage, `blog-files/${uuidv4()}`);
+    const profileStorageRef = storageRef(storage, `blog-files/${blogFileUid}`);
     const uploadTask = uploadBytesResumable(profileStorageRef, file);
     uploadTask.on(
       "state_changed",
