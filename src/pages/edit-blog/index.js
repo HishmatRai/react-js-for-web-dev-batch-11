@@ -29,6 +29,7 @@ import {
   updateDoc,
   ref,
   getDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
@@ -36,8 +37,11 @@ import {
   uploadBytesResumable,
   getDownloadURL,
   ref as storageRef,
+  deleteObject,
 } from "firebase/storage";
 import moment from "moment/moment";
+import swal from "sweetalert";
+
 import ReactPlayer from "react-player";
 const style = {
   position: "absolute",
@@ -236,6 +240,37 @@ const EditBlog = () => {
       }
     );
   };
+
+  // delete
+  const deleteHandler = async () => {
+    swal({
+      title: "Are you sure?",
+      text: "Once deleted, you will not be able to recover this imaginary file!",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    }).then(async (willDelete) => {
+      if (willDelete) {
+        await deleteDoc(doc(firestore, "blogs", stateData.key));
+        const desertRef = storageRef(storage, `blog-files/${stateData.fileUid}`);
+        // Delete the file
+        deleteObject(desertRef)
+          .then(() => {
+            // File deleted successfully
+            navigate(-1);
+          })
+          .catch((error) => {
+            // Uh-oh, an error occurred!
+          });
+
+        swal("Poof! Your imaginary file has been deleted!", {
+          icon: "success",
+        });
+      } else {
+        swal("Your imaginary file is safe!");
+      }
+    });
+  };
   return (
     <Layout>
       <h1>Edit Page</h1>
@@ -248,6 +283,7 @@ const EditBlog = () => {
       <br />
       <br />
       <button onClick={() => setEdit(true)}>Edit</button>
+      <button onClick={deleteHandler}>Delete</button>
       <br />
       <br />
       <h1>{blog?.comments?.length} Comments</h1>

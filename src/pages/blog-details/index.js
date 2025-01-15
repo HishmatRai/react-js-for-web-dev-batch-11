@@ -208,7 +208,7 @@ const BlogDetails = () => {
             const unsub = onSnapshot(
               doc(firestore, "blogs", path),
               async (blogRes) => {
-                setAlradyLike(blogRes.data().like.includes(user.uid));
+                setAlradyLike(blogRes.data()?.like.includes(user.uid));
               }
             );
           }
